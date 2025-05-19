@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Eliminar Pedido</title>
+</head>
+<body>
+  <h2>Eliminar Pedido</h2>
+  <input type="text" id="idPedido" placeholder="ID del pedido">
+  <button onclick="eliminarPedido()">Eliminar</button>
+  <p id="resultado"></p>
+
+  <script>
+    async function eliminarPedido() {
+      const id = document.getElementById('idPedido').value;
+      const response = await fetch(`/api/pedidos/${id}`, { method: 'DELETE' });
+      const data = await response.json();
+      document.getElementById('resultado').innerText = data.mensaje || data.error;
+    }
+  </script>
+</body>
+</html>
