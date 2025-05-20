@@ -1,11 +1,6 @@
 name: Deploy eliminar-pedido
 
-on:
-  push:
-    paths:
-      - 'eliminar-pedido/**'
-      - '.github/workflows/eliminar-pedido.yml'
-
+on: push
 
 jobs:
   deploy:
