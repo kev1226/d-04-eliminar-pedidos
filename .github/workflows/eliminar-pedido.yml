@@ -1,0 +1,40 @@
+name: Deploy eliminar-pedido
+
+on:
+  push:
+    paths:
+      - 'eliminar-pedido/**'
+      - '.github/workflows/eliminar-pedido.yml'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Build Docker image
+      run: |
+        docker build -t kalemat/eliminar-pedido:latest ./eliminar-pedido
+
+    - name: Log in to Docker Hub
+      run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+
+    - name: Push Docker image
+      run: docker push kalemat/eliminar-pedido:latest
+
+    - name: Deploy on EC2
+      uses: appleboy/ssh-action@v1.0.0
+      with:
+        host: ${{ secrets.EC2_HOST }}
+        username: ubuntu
+        key: ${{ secrets.EC2_KEY }}
+        script: |
+          docker stop eliminar-pedido || true
+          docker rm eliminar-pedido || true
+          docker pull kalemat/eliminar-pedido:latest
+          docker run -d -p 3003:3003 --name eliminar-pedido \
+            -e MONGO_URI="mongodb+srv://kalemat:kalemat@cluster0.gsu8slw.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0" \
+            -e PORT=3003 \
+            kalemat/eliminar-pedido:latest
